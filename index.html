@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#edf7ff">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="漪荇工作台">
+<title>@yixing · Oshi Dashboard</title>
+<style>
+:root{
+  --bg:#eef8ff; --card:#ffffff; --blue:#4f9fd1; --deep:#2d78aa;
+  --pale:#dff1ff; --line:#d5eaf7; --text:#315267; --muted:#8ba7b8;
+  --shadow:0 10px 30px rgba(66,132,170,.10);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",
+  "Helvetica Neue","Noto Sans TC",Arial,sans-serif; color:var(--text);
+  background:linear-gradient(180deg,#f8fcff 0%,var(--bg) 100%);
+}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{max-width:760px;margin:auto;padding:22px 18px 90px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.id{font-size:15px;letter-spacing:.04em;color:#54778c}
+.menu{border:0;background:white;width:38px;height:38px;border-radius:14px;color:var(--blue);box-shadow:var(--shadow)}
+.hero{display:grid;grid-template-columns:1fr 150px;gap:18px;align-items:center;margin-bottom:18px}
+.eyebrow{font-size:12px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+h1{font-size:32px;line-height:1.1;margin:7px 0 10px;font-weight:650;letter-spacing:-.04em}
+.slogan{font-size:14px;color:#66879a}
+
+
+
+.date-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 12px}
+.date-line strong{font-size:13px;font-weight:600;color:var(--text)}
+.date-line small{font-size:10px;color:var(--muted)}
+.week-card{margin-top:12px;background:white;border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow)}
+.week-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.week-head b{font-size:13px}.week-head span{font-size:10px;color:var(--muted)}
+.week-days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{border:1px solid var(--line);border-radius:13px;padding:8px 3px;text-align:center;background:#fbfdff}
+.day.today{background:#e8f5ff;border-color:#b8dced}.day .dow{font-size:9px;color:var(--muted)}.day .num{font-size:13px;margin:3px 0}.day .dot{width:6px;height:6px;border-radius:50%;margin:auto;background:#dbeaf2}.day.done .dot{background:var(--blue)}
+.archive{margin-top:12px}.archive summary{cursor:pointer;color:var(--deep);font-size:11px;padding:8px 0}.archive-list{display:flex;flex-direction:column;gap:7px}.archive-item{border:1px solid var(--line);border-radius:14px;background:white;padding:10px 12px;font-size:11px}.archive-item b{font-weight:600}.archive-item span{color:var(--muted);margin-left:7px}
+
+.taskbox{margin-top:12px}
+.task-add{display:flex;gap:8px;margin:10px 0 12px}
+.task-add input{flex:1;min-width:0;border:1px solid var(--line);background:white;border-radius:14px;padding:10px 12px;font-size:12px;color:var(--text);outline:none}
+.task-add input:focus{border-color:#9ccbe7;box-shadow:0 0 0 3px rgba(79,159,209,.08)}
+.task-add button{border:0;background:var(--blue);color:white;border-radius:14px;padding:0 14px;font-size:12px}
+.task-list{display:flex;flex-direction:column;gap:7px}
+.custom-task{display:flex;align-items:center;gap:9px;background:white;border:1px solid var(--line);border-radius:15px;padding:9px 10px}
+.custom-task input{appearance:none;width:18px;height:18px;border:1.5px solid #a9cadc;border-radius:6px;background:white;margin:0;flex:none}
+.custom-task input:checked{background:var(--blue);border-color:var(--blue)}
+.custom-task input:checked:after{content:"✓";color:white;font-size:12px;display:block;text-align:center;line-height:16px}
+.custom-task span{flex:1;font-size:12px;line-height:1.4;word-break:break-word}
+.custom-task.done span{text-decoration:line-through;color:var(--muted)}
+.delete-task{border:0;background:transparent;color:#a5bdc9;font-size:16px;width:25px;height:25px;border-radius:8px}
+.delete-task:active{background:#edf7fc}
+.empty-task{font-size:11px;color:var(--muted);text-align:center;padding:13px 8px}
+
+.carousel{position:relative;aspect-ratio:1/1;border:1.5px solid #c8e4f4;border-radius:26px;overflow:hidden;background:rgba(255,255,255,.65);box-shadow:var(--shadow)}
+.carousel .slides{width:100%;height:100%;display:flex;transition:transform .28s ease}
+.carousel .slide{min-width:100%;height:100%;position:relative}
+.carousel .slide img{width:100%;height:100%;object-fit:cover;display:block}
+.carousel.empty{border:1.5px dashed #9ccbe7;display:flex;align-items:center;justify-content:center;color:#91b6ca}
+.carousel.empty .slides{display:none}
+.carousel.empty .empty-text{display:block}
+.carousel:not(.empty) .empty-text{display:none}
+.carousel .empty-text{font-size:11px;letter-spacing:.14em}
+.carousel .arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:30px;height:30px;border:0;border-radius:50%;background:rgba(255,255,255,.82);color:var(--deep);box-shadow:0 4px 14px rgba(40,105,145,.14)}
+.carousel .prev{left:9px}.carousel .next{right:9px}
+.carousel .dots{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);z-index:3;display:flex;gap:5px;padding:4px 7px;border-radius:99px;background:rgba(255,255,255,.7)}
+.carousel .dot{width:5px;height:5px;border-radius:50%;background:#b8d4e3}.carousel .dot.active{background:var(--blue)}
+.carousel .upload{position:absolute;right:9px;top:9px;z-index:4;border:0;border-radius:99px;background:rgba(255,255,255,.88);color:var(--deep);font-size:10px;padding:6px 9px;box-shadow:0 4px 14px rgba(40,105,145,.12)}
+.carousel .upload input{display:none}
+.carousel-tools{display:flex;justify-content:space-between;align-items:center;margin-top:9px}
+.carousel-tools small{color:var(--muted);font-size:10px}
+.carousel-tools button{border:1px solid var(--line);background:white;color:var(--deep);border-radius:99px;padding:6px 10px;font-size:10px}
+
+.photo{
+  position:relative; aspect-ratio:1/1; border:1.5px dashed #9ccbe7;
+  border-radius:26px; overflow:hidden; background:rgba(255,255,255,.65);
+  display:flex;align-items:center;justify-content:center;color:#91b6ca;
+}
+.photo span{font-size:11px;letter-spacing:.14em}
+.photo img{width:100%;height:100%;object-fit:cover;display:none}
+.photo.has img{display:block}.photo.has span{display:none}
+.photo input{display:none}
+.photo label{position:absolute;inset:0;z-index:2;display:block}
+.section-title{font-size:12px;color:var(--muted);letter-spacing:.12em;margin:24px 3px 10px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{
+  border:1px solid rgba(213,234,247,.9); background:rgba(255,255,255,.88);
+  border-radius:22px;padding:17px;box-shadow:var(--shadow);min-height:120px;
+  text-align:left;transition:.18s; color:var(--text)
+}
+.card:active{transform:scale(.985)}
+.icon{width:34px;height:34px;border-radius:12px;background:var(--pale);display:flex;align-items:center;justify-content:center;color:var(--deep);margin-bottom:13px;font-size:17px}
+.card b{display:block;font-size:16px;font-weight:600}.card small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+.today{background:rgba(255,255,255,.82);border:1px solid var(--line);border-radius:22px;padding:17px;box-shadow:var(--shadow)}
+.progress{height:5px;background:#e7f2f8;border-radius:99px;overflow:hidden;margin:12px 0}
+.progress i{display:block;height:100%;background:var(--blue);width:0;transition:.25s}
+.checkrow{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:13px}
+.checkrow input{appearance:none;width:19px;height:19px;border:1.5px solid #a9cadc;border-radius:7px;background:white;margin:0}
+.checkrow input:checked{background:var(--blue);border-color:var(--blue)}
+.checkrow input:checked:after{content:"✓";color:white;font-size:13px;display:block;text-align:center;line-height:17px}
+.page{display:none}.page.active{display:block}
+.back{border:0;background:transparent;color:var(--deep);padding:4px 0;margin-bottom:16px;font-size:13px}
+.page h2{font-size:27px;margin:0 0 5px;letter-spacing:-.04em}
+.page .sub{color:var(--muted);font-size:12px;margin-bottom:18px}
+.goal{background:white;border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow);margin-bottom:12px}
+.goalhead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.goal h3{font-size:15px;margin:0;font-weight:600}.goal p{font-size:12px;color:var(--muted);margin:7px 0 0}
+.toggle{appearance:none;width:46px;height:28px;border-radius:99px;background:#dcebf3;position:relative;flex:none}
+.toggle:after{content:"";position:absolute;width:22px;height:22px;top:3px;left:3px;border-radius:50%;background:white;box-shadow:0 2px 7px #aac0cc;transition:.2s}
+.toggle:checked{background:var(--blue)}.toggle:checked:after{left:21px}
+.big-photo{max-width:390px;margin:14px auto}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{text-align:center;background:white;border:1px solid var(--line);border-radius:20px;padding:18px}
+.stat strong{display:block;font-size:26px;color:var(--deep)}.stat span{font-size:11px;color:var(--muted)}
+.note{font-size:11px;color:var(--muted);line-height:1.7;margin-top:16px}
+nav{
+ position:fixed;left:50%;bottom:12px;transform:translateX(-50%);width:min(720px,calc(100% - 28px));
+ background:rgba(255,255,255,.93);backdrop-filter:blur(14px);border:1px solid var(--line);
+ border-radius:22px;padding:7px;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;box-shadow:0 12px 35px rgba(40,105,145,.15);z-index:10
+}
+nav button{border:0;background:transparent;color:#88a6b7;font-size:10px;padding:8px 3px;border-radius:16px}
+nav button.active{background:#e5f4ff;color:var(--deep);font-weight:600}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:#315267;color:white;padding:9px 14px;border-radius:99px;font-size:11px;opacity:0;pointer-events:none;transition:.2s;z-index:20}
+.toast.show{opacity:1}
+@media(max-width:500px){.hero{grid-template-columns:1fr 115px}h1{font-size:28px}.app{padding-left:15px;padding-right:15px}.card{min-height:112px}}
+@media(min-width:650px){.grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header><div class="id">@yixing</div><button class="menu" onclick="resetAll()" aria-label="reset">⌁</button></header>
+
+  <main id="home" class="page active">
+    <section class="hero">
+      <div><div class="eyebrow">MY LIFE DASHBOARD</div><h1>把推活融入生活</h1><div class="slogan">认真生活，也留一点时间给喜欢。</div></div>
+      <div>
+        <div class="carousel empty" id="homeCarousel">
+          <div class="slides"></div>
+          <button class="arrow prev" onclick="moveCarousel('home',-1)" aria-label="previous">‹</button>
+          <button class="arrow next" onclick="moveCarousel('home',1)" aria-label="next">›</button>
+          <div class="dots"></div>
+          <label class="upload">＋ 照片<input type="file" accept="image/*" multiple onchange="addCarouselPhotos('home',this)"></label>
+          <div class="empty-text">PHOTO</div>
+        </div>
+        <div class="carousel-tools"><small id="homeCounter">0 photos</small><button onclick="clearCarousel('home')">清空照片</button></div>
+      </div>
+    </section>
+
+    <div class="section-title">TODAY</div>
+    <section class="today">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>今日任务</span><span id="count">0 / 0</span></div>
+      <div class="progress"><i id="bar"></i></div>
+      <div class="date-line"><strong id="todayLabel"></strong><small id="dayResetHint">每天自动更新</small></div>
+      <div class="taskbox">
+        <div class="task-add"><input id="homeTaskInput" placeholder="输入今天要做的事…" onkeydown="if(event.key==='Enter')addTask('home')"><button onclick="addTask('home')">新增</button></div>
+        <div class="task-list" id="homeTaskList"></div>
+      </div>
+    </section>
+    <section class="week-card">
+      <div class="week-head"><b>THIS WEEK</b><span id="weekSummary">0 / 7 days</span></div>
+      <div class="week-days" id="weekDays"></div>
+      <details class="archive">
+        <summary>查看最近的每日紀錄</summary>
+        <div class="archive-list" id="archiveList"></div>
+      </details>
+    </section>
+
+    <div class="section-title">MY SPACE</div>
+    <div class="grid">
+      <button class="card" onclick="show('study')"><div class="icon">⌕</div><b>学习</b><small>每日阅测 · 本本</small></button>
+      <button class="card" onclick="show('health')"><div class="icon">☾</div><b>健康</b><small>12:20 前上床</small></button>
+      <button class="card" onclick="show('oshi')"><div class="icon">✦</div><b>推活</b><small>15 min / day</small></button>
+      <button class="card" onclick="show('checkin')"><div class="icon">✓</div><b>打卡</b><small>早 · 晚</small></button>
+      <button class="card" onclick="show('image')"><div class="icon">○</div><b>形象</b><small>留给自己</small></button>
+      <button class="card" onclick="show('work')"><div class="icon">—</div><b>工作</b><small>可自由记录</small></button>
+    </div>
+  </main>
+
+  <main id="study" class="page"><button class="back" onclick="show('home')">← Home</button><h2>Study</h2><div class="sub">每日阅测 · 其他写在本本上</div>
+    <div class="goal"><div class="goalhead"><div><h3>每日阅测</h3><p>完成今天的阅读测验</p></div><input class="toggle" type="checkbox" data-key="studyGoal" onchange="saveToggles()"></div></div>
+    <div class="goal"><h3>今日学习</h3><p>详细任务写在自己的本本上。</p></div>
+    <div class="big-photo photo" id="studyPhoto"><span>PHOTO</span><img><label><input type="file" accept="image/*" onchange="setPhoto('studyPhoto',this)"></label></div>
+  <div class="section-title">MY TASKS</div>
+    <div class="today taskbox">
+      <div class="task-add"><input id="studyTaskInput" placeholder="新增学习任务…" onkeydown="if(event.key==='Enter')addTask('study')"><button onclick="addTask('study')">新增</button></div>
+      <div class="task-list" id="studyTaskList"></div>
+    </div>
+  </main>
+
+  <main id="health" class="page"><button class="back" onclick="show('home')">← Home</button><h2>Health</h2><div class="sub">只照顾今天的自己</div>
+    <div class="goal"><div class="goalhead"><div><h3>12:20 前上床睡觉</h3><p>Sleep goal · Before 12:20</p></div><input class="toggle" type="checkbox" data-key="sleep" onchange="saveToggles()"></div></div>
+  <div class="section-title">MY TASKS</div>
+    <div class="today taskbox">
+      <div class="task-add"><input id="healthTaskInput" placeholder="新增健康任务…" onkeydown="if(event.key==='Enter')addTask('health')"><button onclick="addTask('health')">新增</button></div>
+      <div class="task-list" id="healthTaskList"></div>
+    </div>
+  </main>
+
+  <main id="oshi" class="page"><button class="back" onclick="show('home')">← Home</button><h2>Oshi</h2><div class="sub">每天留一点时间给喜欢</div>
+    <div class="two"><div class="stat"><strong>15</strong><span>MIN / DAY</span></div><div class="stat"><strong id="oshiStatus">○</strong><span>TODAY</span></div></div>
+    <div class="goal" style="margin-top:12px"><div class="goalhead"><div><h3>欣赏奏汰的美貌</h3><p>A little time for my favorite.</p></div><input class="toggle" type="checkbox" data-key="oshiGoal" onchange="saveToggles();updateOshi()"></div></div>
+    <div class="big-photo">
+      <div class="carousel empty" id="oshiCarousel">
+        <div class="slides"></div>
+        <button class="arrow prev" onclick="moveCarousel('oshi',-1)" aria-label="previous">‹</button>
+        <button class="arrow next" onclick="moveCarousel('oshi',1)" aria-label="next">›</button>
+        <div class="dots"></div>
+        <label class="upload">＋ 加入奏汰照片<input type="file" accept="image/*" multiple onchange="addCarouselPhotos('oshi',this)"></label>
+        <div class="empty-text">PHOTO</div>
+      </div>
+      <div class="carousel-tools"><small id="oshiCounter">0 photos</small><button onclick="clearCarousel('oshi')">清空照片</button></div>
+    </div>
+  <div class="section-title">MY TASKS</div>
+    <div class="today taskbox">
+      <div class="task-add"><input id="oshiTaskInput" placeholder="新增推活任务…" onkeydown="if(event.key==='Enter')addTask('oshi')"><button onclick="addTask('oshi')">新增</button></div>
+      <div class="task-list" id="oshiTaskList"></div>
+    </div>
+  </main>
+
+  <main id="checkin" class="page"><button class="back" onclick="show('home')">← Home</button><h2>Check-in</h2><div class="sub">Morning · Evening</div>
+    <div class="goal"><div class="goalhead"><div><h3>中药 · 早</h3><p>Morning</p></div><input class="toggle" type="checkbox" data-key="medAM" onchange="saveToggles()"></div></div>
+    <div class="goal"><div class="goalhead"><div><h3>中药 · 晚</h3><p>Evening</p></div><input class="toggle" type="checkbox" data-key="medPM" onchange="saveToggles()"></div></div>
+  <div class="section-title">MY TASKS</div>
+    <div class="today taskbox">
+      <div class="task-add"><input id="checkinTaskInput" placeholder="新增打卡任务…" onkeydown="if(event.key==='Enter')addTask('checkin')"><button onclick="addTask('checkin')">新增</button></div>
+      <div class="task-list" id="checkinTaskList"></div>
+    </div>
+  </main>
+
+  <main id="image" class="page"><button class="back" onclick="show('home')">← Home</button><h2>Image</h2><div class="sub">留给自己的小空间</div>
+    <div class="big-photo photo" id="imagePhoto"><span>PHOTO</span><img><label><input type="file" accept="image/*" onchange="setPhoto('imagePhoto',this)"></label></div>
+    <div class="note">这里没有标准答案。可以放喜欢的照片、穿搭灵感，或什么都不放。</div>
+  <div class="section-title">MY TASKS</div>
+    <div class="today taskbox">
+      <div class="task-add"><input id="imageTaskInput" placeholder="新增形象任务…" onkeydown="if(event.key==='Enter')addTask('image')"><button onclick="addTask('image')">新增</button></div>
+      <div class="task-list" id="imageTaskList"></div>
+    </div>
+  </main>
+
+  <main id="work" class="page"><button class="back" onclick="show('home')">← Home</button><h2>Work</h2><div class="sub">可自由记录</div>
+    <div class="goal"><h3>今天要处理的事</h3><p>暂时留白，之后可以按自己的需要扩充。</p></div>
+  <div class="section-title">MY TASKS</div>
+    <div class="today taskbox">
+      <div class="task-add"><input id="workTaskInput" placeholder="新增工作任务…" onkeydown="if(event.key==='Enter')addTask('work')"><button onclick="addTask('work')">新增</button></div>
+      <div class="task-list" id="workTaskList"></div>
+    </div>
+  </main>
+</div>
+
+<nav>
+  <button class="active" onclick="show('home',this)">⌂<br>Home</button>
+  <button onclick="show('study',this)">⌕<br>Study</button>
+  <button onclick="show('health',this)">☾<br>Health</button>
+  <button onclick="show('oshi',this)">✦<br>Oshi</button>
+  <button onclick="show('checkin',this)">✓<br>Check-in</button>
+</nav>
+<div class="toast" id="toast">Saved</div>
+
+<script>
+const key='yixingDashboard_v1';
+let state=JSON.parse(localStorage.getItem(key)||'{}');
+function save(){localStorage.setItem(key,JSON.stringify(state))}
+function show(id,btn){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function dateKey(d=new Date()){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function prettyDate(key){
+  const d=new Date(key+'T00:00:00');
+  return `${d.getMonth()+1}/${d.getDate()} · ${['日','一','二','三','四','五','六'][d.getDay()]}`;
+}
+function getDayData(key=dateKey()){
+  if(!state.days)state.days={};
+  if(!state.days[key])state.days[key]={tasks:{home:[],study:[],health:[],oshi:[],checkin:[],image:[],work:[]}};
+  if(!state.days[key].tasks)state.days[key].tasks={};
+  ['home','study','health','oshi','checkin','image','work'].forEach(k=>{
+    if(!Array.isArray(state.days[key].tasks[k]))state.days[key].tasks[k]=[];
+  });
+  return state.days[key];
+}
+function getTasks(which){return getDayData().tasks[which]}
+function addTask(which){
+  const input=document.getElementById(which+'TaskInput'); if(!input)return;
+  const text=input.value.trim(); if(!text)return;
+  getTasks(which).push({id:Date.now()+Math.random(),text,done:false});
+  input.value=''; save(); renderTasks(which); renderHomeSummary(); toast('任務已加入');
+}
+function toggleTask(which,id){
+  const task=getTasks(which).find(t=>String(t.id)===String(id));
+  if(task)task.done=!task.done;
+  save(); renderTasks(which); renderHomeSummary();
+}
+function deleteTask(which,id){
+  const day=getDayData();
+  day.tasks[which]=day.tasks[which].filter(t=>String(t.id)!==String(id));
+  save(); renderTasks(which); renderHomeSummary(); toast('任務已刪除');
+}
+function renderTasks(which){
+  const list=document.getElementById(which+'TaskList'); if(!list)return;
+  const tasks=getTasks(which);
+  list.innerHTML=tasks.length ? tasks.map(t=>`
+    <div class="custom-task ${t.done?'done':''}">
+      <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${which}','${t.id}')">
+      <span>${escapeHtml(t.text)}</span>
+      <button class="delete-task" onclick="deleteTask('${which}','${t.id}')" aria-label="delete">×</button>
+    </div>`).join('') : '<div class="empty-task">還沒有任務，新增一個吧。</div>';
+}
+function renderHomeSummary(){
+  const tasks=getTasks('home'),done=tasks.filter(t=>t.done).length,total=tasks.length;
+  document.getElementById('count').textContent=`${done} / ${total}`;
+  document.getElementById('bar').style.width=total?(done/total*100)+'%':'0%';
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+function renderWeek(){
+  const box=document.getElementById('weekDays'),now=new Date();
+  const monday=new Date(now); monday.setHours(0,0,0,0);
+  const offset=(monday.getDay()+6)%7; monday.setDate(monday.getDate()-offset);
+  let completed=0;
+  box.innerHTML='';
+  for(let i=0;i<7;i++){
+    const d=new Date(monday);d.setDate(monday.getDate()+i);
+    const key=dateKey(d),day=state.days?.[key],tasks=day?.tasks?.home||[];
+    const done=tasks.length>0 && tasks.every(t=>t.done);
+    if(done)completed++;
+    const el=document.createElement('div');
+    el.className='day'+(key===dateKey()?' today':'')+(done?' done':'');
+    el.innerHTML=`<div class="dow">${['一','二','三','四','五','六','日'][i]}</div><div class="num">${d.getDate()}</div><div class="dot"></div>`;
+    box.appendChild(el);
+  }
+  document.getElementById('weekSummary').textContent=`${completed} / 7 days`;
+  const archive=document.getElementById('archiveList');
+  const entries=Object.entries(state.days||{}).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);
+  archive.innerHTML=entries.length?entries.map(([key,data])=>{
+    const tasks=data.tasks?.home||[],done=tasks.filter(t=>t.done).length;
+    return `<div class="archive-item"><b>${prettyDate(key)}</b><span>${done} / ${tasks.length} 完成</span></div>`;
+  }).join(''):'<div class="empty-task">完成一天後，這裡會留下紀錄。</div>';
+}
+function renderAllTasks(){
+  ['home','study','health','oshi','checkin','image','work'].forEach(renderTasks);
+  renderHomeSummary(); renderWeek();
+}
+function saveToggles(){
+  document.querySelectorAll('.toggle').forEach(x=>state[x.dataset.key]=x.checked);
+  save(); updateHome(); toast('已保存');
+}
+function ensureToday(){
+  if(!state.days)state.days={};
+  const today=dateKey();
+  if(!state.days[today]){
+    state.days[today]={tasks:{home:[],study:[],health:[],oshi:[],checkin:[],image:[],work:[]}};
+    // Keep the original fixed starter goals useful on the first day.
+    state.days[today].tasks.study.push({id:'starter-study',text:'每日閱測',done:false});
+    state.days[today].tasks.health.push({id:'starter-health',text:'12:20 前上床睡覺',done:false});
+    state.days[today].tasks.oshi.push({id:'starter-oshi',text:'花 15 分鐘欣賞奏汰',done:false});
+    state.days[today].tasks.checkin.push({id:'starter-am',text:'中藥 · 早',done:false});
+    state.days[today].tasks.checkin.push({id:'starter-pm',text:'中藥 · 晚',done:false});
+    save();
+  }
+}
+function updateHome(){
+  ensureToday();
+  renderAllTasks();
+  document.getElementById('todayLabel').textContent=prettyDate(dateKey())+' · Today';
+}
+function updateOshi(){document.getElementById('oshiStatus').textContent=state.oshiGoal?'✓':'○'}
+const carouselState={home:{items:[],index:0},oshi:{items:[],index:0}};
+function addCarouselPhotos(which,input){
+  const files=[...input.files];
+  if(!files.length)return;
+  let remaining=files.length;
+  files.forEach(file=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      carouselState[which].items.push(r.result);
+      remaining--;
+      if(remaining===0){
+        state['carousel_'+which]=carouselState[which].items;
+        carouselState[which].index=Math.max(0,carouselState[which].items.length-1);
+        save(); renderCarousel(which); toast('照片已加入');
+      }
+    };
+    r.readAsDataURL(file);
+  });
+  input.value='';
+}
+function moveCarousel(which,delta){
+  const c=carouselState[which];
+  if(!c.items.length)return;
+  c.index=(c.index+delta+c.items.length)%c.items.length;
+  renderCarousel(which,false);
+}
+function renderCarousel(which,resetIndex=false){
+  const c=carouselState[which];
+  const el=document.getElementById(which+'Carousel');
+  const slides=el.querySelector('.slides');
+  const dots=el.querySelector('.dots');
+  const counter=document.getElementById(which+'Counter');
+  if(resetIndex)c.index=0;
+  el.classList.toggle('empty',c.items.length===0);
+  slides.innerHTML=c.items.map(src=>`<div class="slide"><img src="${src}" alt=""></div>`).join('');
+  dots.innerHTML=c.items.map((_,i)=>`<span class="dot ${i===c.index?'active':''}"></span>`).join('');
+  slides.style.transform=`translateX(-${c.index*100}%)`;
+  counter.textContent=`${c.items.length} photo${c.items.length===1?'':'s'}`;
+}
+function clearCarousel(which){
+  if(!carouselState[which].items.length)return;
+  if(confirm('要清空這組照片嗎？')){
+    carouselState[which]={items:[],index:0};
+    state['carousel_'+which]=[];
+    save(); renderCarousel(which); toast('已清空');
+  }
+}
+function toast(t){const x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),1100)}
+function resetAll(){
+  if(confirm('要清除所有打卡和照片吗？')){localStorage.removeItem(key);location.reload()}
+}
+function load(){
+  document.querySelectorAll('.toggle').forEach(x=>x.checked=!!state[x.dataset.key]);
+  carouselState.home.items=Array.isArray(state.carousel_home)?state.carousel_home:[];
+  carouselState.oshi.items=Array.isArray(state.carousel_oshi)?state.carousel_oshi:[];
+  if(!state.days)state.days={};
+  // Migrate tasks from the previous version into today's record once.
+  if(!state.migrated_v2 && state.tasks_home){
+    const d=getDayData();
+    ['home','study','health','oshi','checkin','image','work'].forEach(k=>{
+      if(Array.isArray(state['tasks_'+k]) && state['tasks_'+k].length)d.tasks[k]=state['tasks_'+k];
+    });
+    state.migrated_v2=true; save();
+  }
+  updateOshi();
+  renderCarousel('home',true);
+  renderCarousel('oshi',true);
+  updateHome();
+}
+load();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>

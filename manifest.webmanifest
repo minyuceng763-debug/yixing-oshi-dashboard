@@ -1,0 +1,13 @@
+{
+  "name": "漪荇私人工作台",
+  "short_name": "漪荇工作台",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#eef8ff",
+  "theme_color": "#edf7ff",
+  "lang": "zh-Hant",
+  "icons": [
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
+}
